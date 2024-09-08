@@ -1,0 +1,134 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+// Estructura para el nodo de la lista enlazada
+struct Nodo {
+    int dato;
+    struct Nodo *siguiente;
+};
+
+// Función para crear un nuevo nodo
+struct Nodo* crearNodo(int dato) {
+    struct Nodo *nuevoNodo = (struct Nodo*)malloc(sizeof(struct Nodo));
+    nuevoNodo->dato = dato;
+    nuevoNodo->siguiente = NULL;
+    return nuevoNodo;
+}
+
+// Función para insertar un nodo en la lista enlazada en orden creciente
+void insertarNodo(struct Nodo **cabeza, int dato) {
+    struct Nodo *nuevoNodo = crearNodo(dato);
+    if (*cabeza == NULL || (*cabeza)->dato >= dato) {
+        nuevoNodo->siguiente = *cabeza;
+        *cabeza = nuevoNodo;
+    } else {
+        struct Nodo *actual = *cabeza;
+        while (actual->siguiente != NULL && actual->siguiente->dato < dato) {
+            actual = actual->siguiente;
+        }
+        nuevoNodo->siguiente = actual->siguiente;
+        actual->siguiente = nuevoNodo;
+    }
+}
+
+// Función para imprimir la lista enlazada
+void imprimirLista(struct Nodo *cabeza) {
+    if (cabeza == NULL) {
+        printf("La lista está vacía.\n");
+        return;
+    }
+    struct Nodo *actual = cabeza;
+    while (actual != NULL) {
+        printf("%d ", actual->dato);
+        actual = actual->siguiente;
+    }
+    printf("\n");
+}
+
+// Función para liberar la memoria de la lista enlazada
+void liberarLista(struct Nodo *cabeza) {
+    struct Nodo *actual = cabeza;
+    while (actual != NULL) {
+        struct Nodo *siguiente = actual->siguiente;
+        free(actual);
+        actual = siguiente;
+    }
+}
+
+// Función para sumar los datos de los nodos en posiciones pares e impares
+void sumarDatos(struct Nodo *cabeza, int *sumaPares, int *sumaImpares) {
+    int posicion = 1;
+    struct Nodo *actual = cabeza;
+    while (actual != NULL) {
+        if (posicion % 2 == 0) {
+            *sumaPares += actual->dato;
+        } else {
+            *sumaImpares += actual->dato;
+        }
+        posicion++;
+        actual = actual->siguiente;
+    }
+}
+
+// Función para eliminar los nodos en posiciones pares o impares
+void eliminarNodos(struct Nodo **cabeza, int eliminarPares) {
+    struct Nodo *actual = *cabeza;
+    struct Nodo *anterior = NULL;
+    int posicion = 1;
+    while (actual != NULL) {
+        if ((eliminarPares && posicion % 2 == 0) || (!eliminarPares && posicion % 2 != 0)) {
+            if (anterior == NULL) {
+                *cabeza = actual->siguiente;
+            } else {
+                anterior->siguiente = actual->siguiente;
+            }
+            free(actual);
+            actual = anterior->siguiente;
+        } else {
+            anterior = actual;
+            actual = actual->siguiente;
+        }
+        posicion++;
+    }
+}
+
+int main() {
+    srand(time(NULL));
+    struct Nodo *cabeza = NULL;
+
+    // Insertar nodos con datos aleatorios en orden creciente
+    for (int i = 0; i < 10; i++) {
+        int dato = rand() % 100;
+        insertarNodo(&cabeza, dato);
+    }
+
+    printf("Lista original: ");
+    imprimirLista(cabeza);
+
+    int sumaPares = 0;
+    int sumaImpares = 0;
+
+    // Sumar los datos de los nodos en posiciones pares e impares
+    sumarDatos(cabeza, &sumaPares, &sumaImpares);
+
+    printf("Suma de los datos en posiciones pares: %d\n", sumaPares);
+    printf("Suma de los datos en posiciones impares: %d\n", sumaImpares);
+
+    // Eliminar nodos según la suma de los datos
+    if (sumaPares != sumaImpares) {
+        eliminarNodos(&cabeza, 1); // Eliminar nodos en posiciones pares
+        printf("Lista después de eliminar nodos en posiciones pares: ");
+    } else if (sumaPares == sumaImpares) {
+        eliminarNodos(&cabeza, 0); // Eliminar nodos en posiciones impares
+        printf("Lista después de eliminar nodos en posiciones impares: ");
+    } else {
+        printf("La lista está vacía.\n");
+        return 0;
+    }
+
+    imprimirLista(cabeza);
+
+    liberarLista(cabeza);
+    return 0;
+}
