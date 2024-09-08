@@ -1,0 +1,65 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Nodo {
+    float dato;
+    struct Nodo *siguiente;
+} Nodo;
+
+Nodo *crearNodo(float dato) {
+    Nodo *nuevoNodo = (Nodo *)malloc(sizeof(Nodo));
+    if (nuevoNodo == NULL) {
+        printf("Error al asignar memoria.\n");
+        exit(1);
+    }
+    nuevoNodo->dato = dato;
+    nuevoNodo->siguiente = NULL;
+    return nuevoNodo;
+}
+
+void insertarOrdenado(Nodo **cabeza, float dato) {
+    Nodo *nuevoNodo = crearNodo(dato);
+    Nodo *actual = *cabeza;
+    Nodo *anterior = NULL;
+
+    while (actual != NULL && actual->dato < dato) {
+        anterior = actual;
+        actual = actual->siguiente;
+    }
+
+    if (anterior == NULL) {
+        // Insertar al principio
+        nuevoNodo->siguiente = *cabeza;
+        *cabeza = nuevoNodo;
+    } else {
+        // Insertar en medio o al final
+        nuevoNodo->siguiente = actual;
+        anterior->siguiente = nuevoNodo;
+    }
+}
+
+void mostrarLista(Nodo *cabeza) {
+    Nodo *actual = cabeza;
+    while (actual != NULL) {
+        printf("%.1f ", actual->dato);
+        actual = actual->siguiente;
+    }
+    printf("\n");
+}
+
+int main() {
+    Nodo *cabeza = NULL;
+
+    // Insertar datos en la lista ordenada
+    insertarOrdenado(&cabeza, 10.0);
+    insertarOrdenado(&cabeza, 5.0);
+    insertarOrdenado(&cabeza, 15.0);
+    insertarOrdenado(&cabeza, 20.0);
+    insertarOrdenado(&cabeza, 10.0);
+
+    // Mostrar la lista ordenada
+    printf("Lista ordenada: ");
+    mostrarLista(cabeza);
+
+    return 0;
+}
